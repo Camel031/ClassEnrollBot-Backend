@@ -1,0 +1,15 @@
+# Include production requirements
+-r requirements.txt
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+httpx>=0.26.0
+
+# Code quality
+ruff>=0.1.0
+mypy>=1.8.0
+
+# Development utilities
+watchdog>=3.0.0
