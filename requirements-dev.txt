@@ -13,3 +13,4 @@ mypy>=1.8.0
 
 # Development utilities
 watchdog>=3.0.0
+rich>=13.0.0  # For API explorer script
