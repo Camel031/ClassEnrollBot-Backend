@@ -158,6 +158,12 @@ async def login_to_ntnu(
     db: DbSession,
 ) -> dict:
     """Login to NTNU system using stored credentials."""
+    from datetime import datetime, timedelta
+
+    from app.core.encryption import get_encryption
+    from app.core.exceptions import NTNULoginError
+    from app.services.ntnu_browser_client import NTNUBrowserClient
+
     result = await db.execute(
         select(NTNUAccount).where(
             NTNUAccount.id == account_id,
@@ -172,10 +178,48 @@ async def login_to_ntnu(
             detail="NTNU account not found",
         )
 
-    # TODO: Implement NTNU login service
-    # This will be implemented in the ntnu_client service
-    return {
-        "success": False,
-        "message": "NTNU login service not yet implemented",
-        "session_valid_until": None,
-    }
+    # Decrypt password
+    encryption = get_encryption()
+    try:
+        password = encryption.decrypt(account.encrypted_password)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to decrypt password",
+        )
+
+    # Attempt login using browser client
+    browser_client = NTNUBrowserClient(account_id)
+    try:
+        login_result = await browser_client.login(
+            student_id=account.student_id,
+            password=password,
+        )
+
+        # Update last login time
+        account.last_login_at = datetime.utcnow()
+        await db.flush()
+
+        # Session typically valid for ~30 minutes
+        session_valid_until = datetime.utcnow() + timedelta(minutes=30)
+
+        return {
+            "success": True,
+            "message": "Login successful",
+            "session_valid_until": session_valid_until.isoformat(),
+        }
+
+    except NTNULoginError as e:
+        return {
+            "success": False,
+            "message": str(e),
+            "session_valid_until": None,
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Login failed: {str(e)}",
+            "session_valid_until": None,
+        }
+    finally:
+        await browser_client.close()

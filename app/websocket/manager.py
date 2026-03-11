@@ -119,6 +119,35 @@ class ConnectionManager:
         """
         return user_id in self._connections and len(self._connections[user_id]) > 0
 
+    async def send_operation_log(
+        self, user_id: UUID, log_entry: Dict[str, Any]
+    ) -> None:
+        """
+        Send an operation log entry to a user.
+
+        Used for real-time visibility of worker operations.
+
+        Args:
+            user_id: UUID of the target user
+            log_entry: Operation log entry from OperationLogger
+        """
+        await self.send_to_user(user_id, {
+            "type": "operation_log",
+            "data": log_entry,
+        })
+
+    async def broadcast_operation_log(self, log_entry: Dict[str, Any]) -> None:
+        """
+        Broadcast operation log to all connected users (dev mode).
+
+        Args:
+            log_entry: Operation log entry
+        """
+        await self.broadcast({
+            "type": "operation_log",
+            "data": log_entry,
+        })
+
 
 # Global connection manager instance
 _manager: ConnectionManager | None = None

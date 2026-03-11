@@ -13,10 +13,12 @@ redis>=5.0.0
 
 # Celery
 celery>=5.3.0
+flower>=2.0.0
 
 # Authentication
 python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.4
+bcrypt==4.0.1  # Pin to 4.0.x for passlib compatibility
 email-validator>=2.1.0
 
 # Encryption

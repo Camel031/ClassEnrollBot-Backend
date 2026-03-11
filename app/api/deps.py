@@ -57,6 +57,43 @@ async def get_current_user(
     return user
 
 
+async def get_current_user_ws(token: str) -> User | None:
+    """
+    Get current user from JWT token for WebSocket connections.
+
+    WebSocket connections pass token as query parameter instead of header.
+
+    Args:
+        token: JWT access token
+
+    Returns:
+        User if valid, None otherwise
+    """
+    from app.db.database import async_session_maker
+
+    payload = decode_token(token)
+    if payload is None or payload.get("type") != "access":
+        return None
+
+    user_id = payload.get("sub")
+    if user_id is None:
+        return None
+
+    try:
+        user_uuid = UUID(user_id)
+    except ValueError:
+        return None
+
+    async with async_session_maker() as db:
+        result = await db.execute(select(User).where(User.id == user_uuid))
+        user = result.scalar_one_or_none()
+
+        if user is None or not user.is_active:
+            return None
+
+        return user
+
+
 # Type alias for dependency injection
 CurrentUser = Annotated[User, Depends(get_current_user)]
 DbSession = Annotated[AsyncSession, Depends(get_db)]

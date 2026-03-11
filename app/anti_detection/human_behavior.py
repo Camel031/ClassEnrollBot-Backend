@@ -138,6 +138,34 @@ class HumanBehaviorSimulator:
 
         self._last_mouse_position = (x, y)
 
+    async def random_mouse_movement(self, movements: int = 2) -> None:
+        """
+        Simulate random idle mouse movements on the page.
+
+        Args:
+            movements: Number of random movements to make
+        """
+        for _ in range(movements):
+            # Move to random position within viewport
+            target_x = random.randint(100, 800)
+            target_y = random.randint(100, 600)
+            await self.move_mouse_to(target_x, target_y)
+            # Random pause between movements
+            await asyncio.sleep(random.uniform(0.3, 0.8))
+
+    async def hover_element(self, element: any) -> None:
+        """
+        Move mouse to hover over an element without clicking.
+
+        Args:
+            element: Page element to hover over
+        """
+        box = await element.get_position()
+        target_x = int(box.x + box.width / 2)
+        target_y = int(box.y + box.height / 2)
+        await self.move_mouse_to(target_x, target_y)
+        await asyncio.sleep(random.uniform(0.2, 0.5))
+
     async def click_element(self, element: any) -> None:
         """
         Click an element with human-like behavior.

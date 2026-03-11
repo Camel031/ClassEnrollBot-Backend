@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     ntnu_session_ttl_minutes: int = 20
     ntnu_keepalive_interval_minutes: int = 15
 
+    # Development / Debugging
+    browser_headless: bool = False  # Set to False to see browser in dev
+    enable_operation_logging: bool = True  # Log detailed operation steps
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
