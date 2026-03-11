@@ -95,6 +95,9 @@ class TrackedCourse(Base):
     )
 
     # Course identification
+    # serial_no is the primary identifier in NTNU system (e.g., "0001", "6024")
+    serial_no: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
+    # course_code is secondary (e.g., "A0U0004")
     course_code: Mapped[str] = mapped_column(String(20), nullable=False)
     course_name: Mapped[str] = mapped_column(String(100), nullable=False)
     class_code: Mapped[str | None] = mapped_column(String(10), nullable=True)
@@ -150,6 +153,7 @@ class EnrollmentLog(Base):
     action_type: Mapped[str] = mapped_column(
         String(20), nullable=False
     )  # auto_enroll, manual_enroll, drop, query
+    serial_no: Mapped[str] = mapped_column(String(10), nullable=False)
     course_code: Mapped[str] = mapped_column(String(20), nullable=False)
     course_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
 

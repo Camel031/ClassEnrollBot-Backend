@@ -61,10 +61,9 @@ async def _check_course_availability(tracked_course_id: str) -> Dict[str, Any]:
         client = NTNUClient(course.ntnu_account_id)
 
         try:
-            # Check availability
+            # Check availability using serial_no (NTNU's primary identifier)
             availability = await client.check_course_availability(
-                course.course_code,
-                course.class_code,
+                serial_no=course.serial_no,
             )
 
             # Update course status
@@ -142,10 +141,9 @@ async def _auto_enroll_course(tracked_course_id: str) -> Dict[str, Any]:
         client = NTNUClient(course.ntnu_account_id)
 
         try:
-            # Attempt enrollment
+            # Attempt enrollment using serial_no (NTNU's primary identifier)
             enrollment_result = await client.enroll_course(
-                course.course_code,
-                course.class_code,
+                serial_no=course.serial_no,
             )
 
             # Log the result
@@ -153,6 +151,7 @@ async def _auto_enroll_course(tracked_course_id: str) -> Dict[str, Any]:
                 user_id=course.user_id,
                 tracked_course_id=course.id,
                 action_type="auto_enroll",
+                serial_no=course.serial_no,
                 course_code=course.course_code,
                 course_name=course.course_name,
                 status="success" if enrollment_result.get("success") else "failed",
@@ -194,6 +193,7 @@ async def _auto_enroll_course(tracked_course_id: str) -> Dict[str, Any]:
                 user_id=course.user_id,
                 tracked_course_id=course.id,
                 action_type="auto_enroll",
+                serial_no=course.serial_no,
                 course_code=course.course_code,
                 course_name=course.course_name,
                 status="failed",
@@ -210,6 +210,7 @@ async def _auto_enroll_course(tracked_course_id: str) -> Dict[str, Any]:
                 user_id=course.user_id,
                 tracked_course_id=course.id,
                 action_type="auto_enroll",
+                serial_no=course.serial_no,
                 course_code=course.course_code,
                 course_name=course.course_name,
                 status="failed",
